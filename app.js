@@ -1,6 +1,8 @@
 // Variables globales
 const btnSearch = document.getElementById('btnSearch');
 const inputSearch = document.getElementById('searchArtista');
+const musicContainer = document.querySelector('.musicaArtista');
+const loadingIndicator = document.querySelector('.loading');
 let playlist = null;
 
 btnSearch.addEventListener('click', () => {
@@ -21,16 +23,19 @@ const searchArtist = async (name) => {
     };
 
     try {
+        showLoading(true);
         const response = await fetch(url, options);
         const result = await response.json();
         displayResults(result);
     } catch (error) {
         console.error('Error fetching the artist data:', error);
+        displayError('Error fetching the artist data. Please try again later.');
+    } finally {
+        showLoading(false);
     }
 };
 
 const displayResults = (data) => {
-    const musicContainer = document.querySelector('.musicaArtista');
     musicContainer.innerHTML = ''; // Limpiar resultados anteriores
 
     if (data && data.data && data.data.length > 0) {
@@ -44,9 +49,43 @@ const displayResults = (data) => {
                     <p>${track.artist.name}</p>
                 </div>
             `;
+            trackElement.addEventListener('click', () => {
+                selectTrack(track);
+            });
             musicContainer.appendChild(trackElement);
         });
     } else {
         musicContainer.innerHTML = '<p>No se encontraron resultados.</p>';
     }
 };
+
+const selectTrack = (track) => {
+    const selectedTrackImg = document.getElementById('selected-track-img');
+    const selectedTrackContainer = document.querySelector('.selected-track');
+
+    selectedTrackImg.src = track.album.cover;
+    selectedTrackImg.alt = track.title;
+    selectedTrackContainer.style.display = 'flex';
+};
+
+const displayError = (message) => {
+    musicContainer.innerHTML = `<p class="error">${message}</p>`;
+};
+
+const showLoading = (isLoading) => {
+    loadingIndicator.style.display = isLoading ? 'block' : 'none';
+};
+
+// Añadir funcionalidad a los botones de reproducción
+const playBtn = document.getElementById('play-btn');
+const pauseBtn = document.getElementById('pause-btn');
+
+playBtn.addEventListener('click', () => {
+    // Lógica para reproducir la canción
+    console.log('Reproduciendo canción');
+});
+
+pauseBtn.addEventListener('click', () => {
+    // Lógica para pausar la canción
+    console.log('Pausando canción');
+});
